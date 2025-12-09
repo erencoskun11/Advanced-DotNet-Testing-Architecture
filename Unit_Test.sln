@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36603.0 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnit_Test_APP", "Unit_Test_API\XUnit_Test_APP.csproj", "{01B7A849-8A5E-455E-AB4F-EF5652826F8C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit_Test_API", "Unit_Test_API\Unit_Test_API.csproj", "{01B7A849-8A5E-455E-AB4F-EF5652826F8C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnit_Test.Test", "XUnit_Test.Test\XUnit_Test.Test.csproj", "{39533ED5-B890-4E39-AF9A-9A25096C3750}"
 EndProject
