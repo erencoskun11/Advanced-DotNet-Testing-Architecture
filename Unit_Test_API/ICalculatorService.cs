@@ -9,6 +9,7 @@ namespace Unit_Test_API
     public interface ICalculatorService
     {
         int add(int x, int y);
+        int multip(int a, int b);
 
     }
 }
