@@ -68,10 +68,15 @@ namespace XUnit_Test.Test
         [InlineData(3, 5, 15)]
         public void Multip_SimpleValues_ReturnsMultipValue(int a, int b, int expextedTotal)
         {
-            mymock.Setup(x=>x.multip(a,b)).Returns(expextedTotal);
-            Assert.Equal(15,calculator.multip(a,b));
 
-            Assert.Equal(10,calculator.multip(2,5));
+            int actualMultip=0;
+            mymock.Setup(x => x.multip(It.IsAny<int>(), It.IsAny<int>
+                ())).Callback<int, int>((x, y) => actualMultip = x * y);
+
+            calculator.multip(a, b);
+
+            Assert.Equal(15,actualMultip );
+            Assert.Equal(expextedTotal, calculator.multip(2, 5));
 
 
 
