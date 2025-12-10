@@ -1,39 +1,66 @@
-﻿using System.Text.RegularExpressions;
+﻿using Moq;
+using Xunit; // Xunit'i eklemeyi unutma
 using Unit_Test_API;
 
 namespace XUnit_Test.Test
 {
     public class CalculatorTest
     {
-        [Fact]
-        public void AddTest()
+        // Sınıf seviyesinde tanımlamalar
+        public Calculator calculator { get; set; }
+        public Mock<ICalculatorService> mymock { get; set; }
+
+        public CalculatorTest()
         {
-            //var names = new List<string>() { "fatih", "ahmet", "mehmet" };
+            // 1. Mock'u oluşturuyoruz
+            mymock = new Mock<ICalculatorService>();
 
-            //Assert.DoesNotContain("fath", "my name is fatih");
+            // 2. Calculator'a bu mock'u enjekte ediyoruz (Dependency Injection)
+            // Artık calculator nesnesi, buradaki 'mymock' ne derse onu yapacak.
+            calculator = new Calculator(mymock.Object);
+        }
 
-            // Assert.Contains(names, x => x == "fatih");
-            //Assert.True(3 < 5);
-            //Assert.True("".GetType()==typeof(string));
+        [Theory]
+        [InlineData(5, 10, 15)]
+        [InlineData(20, 30, 50)]
+        public void Add_simpleValues_ReturnTotalValue(int a, int b, int expextedTotal)
+        {
+            // HATA BURADAYDI: Burada 'var mymock = ...' diyerek yeni bir mock oluşturma!
+            // Yukarıdaki global 'mymock'u kullan.
 
-            //var regex = "^dog";
+            // Arrange
+            // Service'in add metodu çağrıldığında ne döneceğini ayarlıyoruz (Setup)
+            mymock.Setup(x => x.add(a, b)).Returns(expextedTotal);
 
-            //Assert.DoesNotMatch(regex, "hotdog");
+            // Act
+            var actualTotal = calculator.add(a, b);
 
-            //Assert.StartsWith("do", "dog");
-            //Assert.EndsWith("og", "dog");
+            // Assert
+            Assert.Equal(expextedTotal, actualTotal);
 
-            //Assert.Single(new List<int>() { 1 });
+            // İstersen burada da verify yapabilirsin
+            mymock.Verify(x => x.add(a, b), Times.Once);
+        }
 
+        [Theory]
+        [InlineData(0, 10, 0)]
+        [InlineData(10, 0, 0)]
+        public void Add_zeroValues_ReturnZeroValue(int a, int b, int expextedTotal)
+        {
+            // Arrange
+            // Mock servisin bu değerler için 0 döneceğini belirtiyoruz.
+            mymock.Setup(x => x.add(a, b)).Returns(expextedTotal);
 
-            //Assert.IsType<int>(new Calculator().add(2, 3));
+            // Act
+            // Calculator içindeki add metodu çalışıyor -> O da gidip Mock Service'i çağırıyor
+            var actualTotal = calculator.add(a, b);
 
-            //Assert.IsAssignableFrom<IEnumerable<string>>()(new List<string>());
-            //Assert.IsAssignableFrom<Vehicle>(carObject);
+            // Assert
+            Assert.Equal(expextedTotal, actualTotal);
 
-
-
-
+            // Verify
+            // Calculator gerçekten servise gitti mi? Evet, şimdi bu verify geçer.
+            mymock.Verify(x => x.add(a, b), Times.AtLeast(2));
         }
     }
 }
