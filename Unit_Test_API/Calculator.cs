@@ -15,5 +15,10 @@
 
          return _calculatorService.add(x, y);
         }
+
+        public int multip(int a, int b)
+        {
+            return _calculatorService.multip(a, b);
+        }
     }
 }
