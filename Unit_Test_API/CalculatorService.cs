@@ -8,9 +8,9 @@ namespace Unit_Test_API
 {
     public class CalculatorService: ICalculatorService
     {
-        public int add2(int x, int y)
+        public int add(int x, int y)
         {
-            return x + y;
+            return 0;
         }
     }
   
