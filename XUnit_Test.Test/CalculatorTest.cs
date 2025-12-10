@@ -62,5 +62,45 @@ namespace XUnit_Test.Test
             // Calculator gerçekten servise gitti mi? Evet, şimdi bu verify geçer.
             mymock.Verify(x => x.add(a, b), Times.AtLeast(2));
         }
+
+
+        [Theory]
+        [InlineData(3, 5, 15)]
+        public void Multip_SimpleValues_ReturnsMultipValue(int a, int b, int expextedTotal)
+        {
+            mymock.Setup(x=>x.multip(a,b)).Returns(expextedTotal);
+            Assert.Equal(15,calculator.multip(a,b));
+
+            Assert.Equal(10,calculator.multip(2,5));
+
+
+
+
+
+        }
+
+
+
+
+
+        [Theory]
+        [InlineData(5, 10)]
+        public void Multip_ZeroValue_ReturnsException(int a ,int b)
+        {
+            mymock.Setup(x=>x.multip(a,b)).Throws(new Exception("a=0 olamaz"));
+
+            Exception exception = Assert.Throws<Exception>(() => calculator.multip(a, b));
+        
+        Assert.Equal("a=0 olamaz", exception.Message);
+
+
+
+        }
+
+
+
+
+
+
     }
 }
