@@ -8,7 +8,7 @@ namespace Unit_Test_API
 {
     public interface ICalculatorService
     {
-        int add2(int x, int y);
+        int add(int x, int y);
 
     }
 }
