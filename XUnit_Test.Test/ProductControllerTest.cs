@@ -50,5 +50,53 @@ namespace XUnit_Test.Test
             // 3. Gelen listede 3 tane mi ürün var?
             Assert.Equal(3, returnProducts.Count());
         }
+
+        [Fact] 
+        public  async void Details_IdInValid_ReturnNotFound()
+        {
+            Product product = null;
+            _mockRepo.Setup(x => x.GetById(0)).ReturnsAsync(product);
+
+            var result = await _controller.Details(0);
+            var redirect = Assert.IsType<NotFoundResult>(result);
+
+            Assert.Equal<int>(404, redirect.StatusCode);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        public async void Details_IdValid_ReturnProduct(int productId)
+        {
+            var product = _products.First(x => x.Id == productId);
+            _mockRepo.Setup(x => x.GetById(productId)).ReturnsAsync(product);
+            var result = await _controller.Details(productId);
+            var viewResult = Assert.IsType<OkObjectResult>(result);
+            var returnProduct = Assert.IsType<Product>(viewResult.Value);
+            Assert.Equal(productId, returnProduct.Id);
+            Assert.Equal("Kalem", returnProduct.Name);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
 }
