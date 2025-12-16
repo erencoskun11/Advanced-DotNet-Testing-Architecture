@@ -14,7 +14,21 @@ namespace Unit_Test_API.Controllers
         public ActionResult<IEnumerable<Product>> GetAll()
             => Ok(repository.GetAll());
 
-       
+        [HttpGet("{id}")]
+        public ActionResult<Product> GetById(int id)
+            => repository.GetById(id) switch
+            {
+                null => NotFound(),
+                var product => Ok(product)
+            };
+
+        [HttpPost]
+        public CreatedAtActionResult Create(Product product)
+        {
+            repository.Add(product);
+            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        }
+
         [HttpDelete("{id}")]
         public NoContentResult Delete(int id)
         {
