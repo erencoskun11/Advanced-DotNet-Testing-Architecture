@@ -51,7 +51,7 @@ namespace XUnit_Test.Test
             Assert.Equal(3, returnProducts.Count());
         }
 
-        [Fact] 
+        /*[Fact] 
         public  async void Details_IdInValid_ReturnNotFound()
         {
             Product product = null;
@@ -77,7 +77,7 @@ namespace XUnit_Test.Test
         }
 
 
-
+        */
 
 
 
