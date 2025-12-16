@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc; // OkObjectResult için gerekli
 using Moq;
 using Unit_Test_API;             // Product ve IRepository'nin olduğu yer
-using Unit_Test_API.Controllers; // ProductController'ın olduğu yer
+using Unit_Test_API.Controller;
 
 namespace XUnit_Test.Test
 {
