@@ -1,52 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Unit_Test_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController(IRepository<Product> repository) : ControllerBase
     {
-        // Bağımlılığı (Dependency) burada tanımlıyoruz
-        private readonly IRepository<Product> _repository;
-
-        // Constructor Injection (En önemli kısım burası!)
-        // Test yazarken buraya Mock nesnesi, gerçek çalışırken veritabanı nesnesi gelecek.
-        public ProductController(IRepository<Product> repository)
-        {
-            _repository = repository;
-        }
+        // 1. Primary Constructor (C# 12): No need for explicit field assignment
+        // 2. Expression-bodied members (=>): No need for return/brackets for simple logic
 
         [HttpGet]
-        public IActionResult GetAll()
-        {
-            var products = _repository.GetAll();
-            return Ok(products);
-        }
+        public ActionResult<IEnumerable<Product>> GetAll()
+            => Ok(repository.GetAll());
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
-        {
-            var product = _repository.GetById(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return Ok(product);
-        }
-
-        [HttpPost]
-        public IActionResult Create(Product product)
-        {
-            _repository.Add(product);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
-        }
-
+       
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public NoContentResult Delete(int id)
         {
-            _repository.Delete(id);
+            repository.Delete(id);
             return NoContent();
         }
     }
