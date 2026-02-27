@@ -1,18 +1,42 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Unit_Test_API
+namespace Unit_Test_API.Domain.Entities
 {
     public class Category
     {
-        public int Id { get; set; }
+        public int Id { get; private set; }
 
-        [Required(ErrorMessage = "Category name is required")]
-        [StringLength(100)]
-        public required string Name { get; set; }
+        [Required]
+        [StringLength(100, MinimumLength = 2)]
+        public string Name { get; private set; } = string.Empty;
 
-        public string? Description { get; set; }
+        [StringLength(500)]
+        public string? Description { get; private set; }
 
-        // Relationship: A Category can have multiple Products
-        public ICollection<Product> Products { get; set; } = new List<Product>();
+        // Navigation Property
+        public ICollection<Product> Products { get; private set; } = new List<Product>();
+
+        // EF Constructor
+        protected Category() { }
+
+        public Category(string name, string? description = null)
+        {
+            SetName(name);
+            Description = description;
+        }
+
+        public void SetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Category name cannot be empty.");
+
+            Name = name.Trim();
+        }
+
+        public void UpdateDescription(string? description)
+        {
+            Description = description;
+        }
     }
 }
