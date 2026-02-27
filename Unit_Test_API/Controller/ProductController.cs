@@ -1,38 +1,81 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Unit_Test_API.Controller
+namespace Unit_Test_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController(IRepository<Product> repository) : ControllerBase
+    public class ProductsController(IRepository<Product> repository) : ControllerBase
     {
-        // 1. Primary Constructor (C# 12): No need for explicit field assignment
-        // 2. Expression-bodied members (=>): No need for return/brackets for simple logic
-
+        // GET: api/products
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll()
-            => Ok(repository.GetAll());
-
-        [HttpGet("{id}")]
-        public ActionResult<Product> GetById(int id)
-            => repository.GetById(id) switch
-            {
-                null => NotFound(),
-                var product => Ok(product)
-            };
-
-        [HttpPost]
-        public CreatedAtActionResult Create(Product product)
+        public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            repository.Add(product);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+            var products = await repository.GetAllAsync(cancellationToken);
+            return Ok(products);
         }
 
-        [HttpDelete("{id}")]
-        public NoContentResult Delete(int id)
+        // GET: api/products/5
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Product>> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            repository.Delete(id);
+            var product = await repository.GetByIdAsync(id, cancellationToken);
+
+            if (product is null)
+                return NotFound(new { message = $"Product with id {id} not found." });
+
+            return Ok(product);
+        }
+
+        // POST: api/products
+        [HttpPost]
+        public async Task<ActionResult<Product>> CreateAsync(
+            [FromBody] Product product,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await repository.AddAsync(product, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetByIdAsync),
+                new { id = product.Id },
+                product
+            );
+        }
+
+        // PUT: api/products/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateAsync(
+            int id,
+            [FromBody] Product updatedProduct,
+            CancellationToken cancellationToken)
+        {
+            if (id != updatedProduct.Id)
+                return BadRequest(new { message = "Id mismatch." });
+
+            var existing = await repository.GetByIdAsync(id, cancellationToken);
+            if (existing is null)
+                return NotFound(new { message = $"Product with id {id} not found." });
+
+            await repository.UpdateAsync(updatedProduct, cancellationToken);
+
+            return NoContent();
+        }
+
+        // DELETE: api/products/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            var existing = await repository.GetByIdAsync(id, cancellationToken);
+            if (existing is null)
+                return NotFound(new { message = $"Product with id {id} not found." });
+
+            await repository.DeleteAsync(id, cancellationToken);
+
             return NoContent();
         }
     }
