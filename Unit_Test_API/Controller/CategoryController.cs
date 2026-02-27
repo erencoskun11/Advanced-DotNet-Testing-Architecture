@@ -1,35 +1,59 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Unit_Test_API.Controller
+namespace Unit_Test_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // C# 12 Primary Constructor: Injects the repository directly into the class scope
-    public class CategoryController(IRepository<Category> repository) : ControllerBase
+    public class CategoriesController(IRepository<Category> repository) : ControllerBase
     {
         [HttpGet]
-        public ActionResult<IEnumerable<Category>> GetCategories()
-            => Ok(repository.GetAll());
-
-        [HttpGet("{id}")]
-        public ActionResult<Category> GetCategory(int id)
-            => repository.GetById(id) switch
-            {
-                null => NotFound(),
-                var category => Ok(category)
-            };
-
-        [HttpPost]
-        public ActionResult<Category> Create(Category category)
+        public async Task<ActionResult<IEnumerable<Category>>> GetAllAsync(CancellationToken cancellationToken)
         {
-            repository.Add(category);
-            return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
+            var categories = await repository.GetAllAsync(cancellationToken);
+            return Ok(categories);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Category>> GetByIdAsync(int id, CancellationToken cancellationToken)
         {
-            repository.Delete(id);
+            var category = await repository.GetByIdAsync(id, cancellationToken);
+
+            if (category is null)
+                return NotFound(new { message = $"Category with id {id} not found." });
+
+            return Ok(category);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Category>> CreateAsync(
+            [FromBody] Category category,
+            CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            await repository.AddAsync(category, cancellationToken);
+
+            return CreatedAtAction(
+                nameof(GetByIdAsync),
+                new { id = category.Id },
+                category
+            );
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
+        {
+            var existing = await repository.GetByIdAsync(id, cancellationToken);
+
+            if (existing is null)
+                return NotFound(new { message = $"Category with id {id} not found." });
+
+            await repository.DeleteAsync(id, cancellationToken);
+
             return NoContent();
         }
     }
